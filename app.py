@@ -7,7 +7,7 @@ import re
 import os
 
 # define the target url
-url = "https://www.worldfootball.net/teams/tottenham-hotspur/2001/3/"
+url = "https://www.worldfootball.net/teams/tottenham-hotspur/1990/3/"
 
 # get the URL reference
 ref = "https://" + urlparse(url).netloc

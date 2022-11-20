@@ -110,7 +110,10 @@ def get_match(url:str, context:dict) -> dict:
                     if len(td) == 2:
                         player_name = td[-1].find("a").text.strip()
                         event_time = re.search("\d+",td[-1].text).group()
-                        goals_table.update({player_name: int(event_time)})
+                        if player_name not in goals_table:
+                            goals_table.update({player_name: [int(event_time)]})
+                        else:
+                            goals_table[player_name].append(int(event_time))
         
         # get players table
         players = []
@@ -165,10 +168,11 @@ def get_match(url:str, context:dict) -> dict:
                     if player_name in goals_table:
                         if "Event" in player:
                             player['Event Time'].append(goals_table[player_name])
-                            player['Event'].append("goal")
+                            for _ in range(len(goals_table[player_name])):
+                                player['Event'].append("goal")
                         else:
-                            player['Event Time'] = [goals_table[player_name]]
-                            player['Event'] = ["goal"]
+                            player['Event Time'] = [x for x in goals_table[player_name]]
+                            player['Event'] = ["goals" for _ in range(len(goals_table[player_name]))]
 
                     # define player with subtitution
                     if subbed:
@@ -224,3 +228,21 @@ def get_match(url:str, context:dict) -> dict:
     data['Result'] = match_result
 
     return data
+
+if __name__ == "__main__":
+
+    import json
+
+    match_url = "https://www.worldfootball.net/report/premier-league-1999-2000-tottenham-hotspur-southampton-fc/"
+    context = {
+        'Opponent': 'Southampton FC',
+        'For': '7',
+        'Against': '2'
+    }
+    match_data = get_match(match_url,context)
+
+    json.dump(
+        match_data,
+        open("example-output.json","w",encoding="utf-8"),
+        indent=4
+    )
