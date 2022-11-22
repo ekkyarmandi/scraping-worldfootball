@@ -168,7 +168,7 @@ def get_match(url:str, context:dict) -> dict:
                     # define player with goal
                     if player_name in goals_table:
                         if "Event" in player:
-                            player['Event Time'].append(goals_table[player_name])
+                            player['Event Time'].extend(goals_table[player_name])
                             for _ in range(len(goals_table[player_name])):
                                 player['Event'].append("goal")
                         else:
@@ -234,11 +234,11 @@ if __name__ == "__main__":
 
     import json
 
-    match_url = "https://www.worldfootball.net/report/premier-league-2019-2020-tottenham-hotspur-southampton-fc/"
+    match_url = "https://www.worldfootball.net/report/premier-league-2019-2020-newcastle-united-tottenham-hotspur/"
     context = {
-        'Opponent': 'Southampton FC',
-        'For': '2',
-        'Against': '1'
+        'Opponent': 'Newcastle United',
+        'For': '1',
+        'Against': '3'
     }
     match_data = get_match(match_url,context)
 
