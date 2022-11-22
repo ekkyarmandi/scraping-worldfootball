@@ -37,7 +37,7 @@ def sort_event(player: dict) -> dict:
         li.append([et,i])
         
     # sort the li variable
-    li.sort()
+        li.sort()
 
     # get the index only from li variable
     index = []

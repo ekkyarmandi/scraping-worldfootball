@@ -3,11 +3,12 @@ from func import render, get_match, check_folder
 from urllib.parse import urlparse
 import json
 import time
+import sys, traceback
 import re
 import os
 
 # define the target url
-url = "https://www.worldfootball.net/teams/tottenham-hotspur/1990/3/"
+url = "https://www.worldfootball.net/teams/tottenham-hotspur/1992/3/"
 
 # get the URL reference
 ref = "https://" + urlparse(url).netloc
@@ -24,20 +25,22 @@ for row in rows:
     tds = row.select("td")
     if len(tds) == 1:
         season_league = tds[0].find("a").get("title")
-        season = re.search("\d+\/\d+",season_league)
+        season = re.search("\d+\/\d+|\d+",season_league)
         if season:
             season = season.group()
             league = season_league.replace(season,"").strip()
 
             # convert season year from XXXX/XXXX into XXXX/XX
             ''' Assume the year format is XXXX/XXXX '''
-            a,b = season.split("/")
-            season = f"{a}/{b[2:]}"
+            if "/" in season:
+                a,b = season.split("/")
+                season = f"{a}/{b[2:]}"
 
     elif len(tds) > 1:
         try:
             results = tds[6].find("a")
 
+            opponent = tds[5].find("a").text.strip()
             match_url = results.get("href")
             if ref not in match_url:
                 match_url = ref + match_url
@@ -51,7 +54,7 @@ for row in rows:
                 'Date': tds[1].find("a").text.strip(),
                 'Kick off Time': tds[2].text.strip(),
                 'Place': tds[3].text.strip(),
-                'Opponent': tds[5].find("a").text.strip(),
+                'Opponent': opponent,
                 "Competition": league,
                 "Season": season,
                 "For": for_against[0],
@@ -62,18 +65,23 @@ for row in rows:
             if match_url:
                 match_data = get_match(match_url,context)
                 data.append(match_data)
-                time.sleep(1)
+                # time.sleep(1)
 
         except Exception as E:
+            _, _, tb = sys.exc_info()
+            a = traceback.print_tb(tb)
             print({
                 "url": match_url,
+                "opponent": opponent,
                 "error": E,
             })
 
 # dump the data as JSON file
 root = "output"
 check_folder(root)
-filename = os.path.join(root,season.replace("/","-") + ".json")
+if "/" in season:
+    season = season.replace("/","-")
+filename = os.path.join(root,season+".json")
 json.dump(
     data,
     open(filename,"w",encoding="utf-8"),
