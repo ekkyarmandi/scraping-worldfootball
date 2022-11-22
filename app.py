@@ -20,6 +20,7 @@ table = html.find("table",class_="standard_tabelle")
 rows = table.select("tr")
 data = []
 for row in rows:
+    match_url = ""
     tds = row.select("td")
     if len(tds) == 1:
         season_league = tds[0].find("a").get("title")

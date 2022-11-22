@@ -129,7 +129,7 @@ def get_match(url:str, context:dict) -> dict:
             # find players name
             if len(td) == 3:
                 player_name = td[1].find('a')
-                card = td[1].find("img")
+                cards = td[1].find_all("img")
                 subbed = td[2].find_all("span")
 
                 if len(subbed) > 1:
@@ -148,20 +148,21 @@ def get_match(url:str, context:dict) -> dict:
                     }
 
                     # define player card issued
-                    if card:
-                        card_title = card.get("title")
-                        minute_str = re.search("\d+",card.find_next("span").text)
-                        if minute_str:
-                            card_minute = int(minute_str.group())
-                        else:
-                            card_minute = -1
-                        
-                        if "Event" in player:
-                            player['Event Time'].append(card_minute)
-                            player['Event'].append(card_title)
-                        else:
-                            player['Event Time'] = [card_minute]
-                            player['Event'] = [card_title]
+                    if cards:
+                        for card in cards:
+                            card_title = card.get("title")
+                            minute_str = re.search("\d+",card.find_next("span").text)
+                            if minute_str:
+                                card_minute = int(minute_str.group())
+                            else:
+                                card_minute = -1
+                            
+                            if "Event" in player:
+                                player['Event Time'].append(card_minute)
+                                player['Event'].append(card_title)
+                            else:
+                                player['Event Time'] = [card_minute]
+                                player['Event'] = [card_title]
 
 
                     # define player with goal
@@ -233,11 +234,11 @@ if __name__ == "__main__":
 
     import json
 
-    match_url = "https://www.worldfootball.net/report/premier-league-1999-2000-tottenham-hotspur-southampton-fc/"
+    match_url = "https://www.worldfootball.net/report/premier-league-2019-2020-tottenham-hotspur-southampton-fc/"
     context = {
         'Opponent': 'Southampton FC',
-        'For': '7',
-        'Against': '2'
+        'For': '2',
+        'Against': '1'
     }
     match_data = get_match(match_url,context)
 
