@@ -20,6 +20,7 @@ html = render(url)
 table = html.find("table",class_="standard_tabelle")
 rows = table.select("tr")
 data = []
+get_season = True
 for row in rows:
     match_url = ""
     tds = row.select("td")
@@ -29,6 +30,12 @@ for row in rows:
         if season:
             season = season.group()
             league = season_league.replace(season,"").strip()
+            if get_season:
+                get_season = False
+                filename_season = season
+                if "/" in filename_season:
+                    a,b = filename_season.split("/")
+                    filename_season = f"{a}-{b[2:]}"
 
             # convert season year from XXXX/XXXX into XXXX/XX
             ''' Assume the year format is XXXX/XXXX '''
@@ -68,8 +75,8 @@ for row in rows:
                 # time.sleep(1)
 
         except Exception as E:
-            _, _, tb = sys.exc_info()
-            a = traceback.print_tb(tb)
+            # _, _, tb = sys.exc_info()
+            # traceback.print_tb(tb)
             print({
                 "url": match_url,
                 "opponent": opponent,
@@ -79,9 +86,7 @@ for row in rows:
 # dump the data as JSON file
 root = "output"
 check_folder(root)
-if "/" in season:
-    season = season.replace("/","-")
-filename = os.path.join(root,season+".json")
+filename = os.path.join(root,filename_season+".json")
 json.dump(
     data,
     open(filename,"w",encoding="utf-8"),
